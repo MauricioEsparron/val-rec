@@ -1,0 +1,77 @@
+<Window x:Class="ValRec.EditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Icon="gato.ico" Title="VAL Rec · Colores y filtros" Width="1040" Height="640" MinWidth="900" MinHeight="560"
+        WindowStartupLocation="CenterOwner" Background="#14161A" Foreground="#E8EAED"
+        FontFamily="Segoe UI" FontSize="13">
+    <Grid Margin="16">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="300"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Abrir video -->
+        <DockPanel Grid.ColumnSpan="2" Margin="0,0,0,12">
+            <Button x:Name="OpenBtn" Content="Abrir video…" Width="110" Height="30" DockPanel.Dock="Left" Click="Open_Click"/>
+            <TextBlock x:Name="PathText" Text="Ningún video cargado" Foreground="#9AA0A6" VerticalAlignment="Center" Margin="12,0,0,0" TextTrimming="CharacterEllipsis"/>
+        </DockPanel>
+
+        <!-- Vista previa -->
+        <Grid Grid.Row="1" Margin="0,0,16,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Original" Foreground="#9AA0A6" Margin="0,0,0,4"/>
+            <TextBlock Text="Con filtros" Foreground="#9AA0A6" Margin="8,0,0,4" Grid.Column="1"/>
+            <Border Grid.Row="1" Background="#0B0C0F" CornerRadius="4" Margin="0,0,4,0">
+                <Image x:Name="OrigImg" Stretch="Uniform"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" Background="#0B0C0F" CornerRadius="4" Margin="4,0,0,0">
+                <Image x:Name="FxImg" Stretch="Uniform"/>
+            </Border>
+        </Grid>
+
+        <!-- Ajustes -->
+        <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <StackPanel x:Name="SlidersPanel"/>
+                <ComboBox x:Name="BlurMode" Margin="0,10,0,0" Height="28" VerticalContentAlignment="Center"/>
+                <WrapPanel Margin="0,8,0,0">
+                    <Button Content="Mis valores de OBS" Padding="10,4" Margin="0,0,6,6" Click="Obs_Click"/>
+                    <Button Content="Presets de VAL Edit" Padding="10,4" Margin="0,0,6,6" Click="ValEdit_Click"/>
+                    <Button Content="Restablecer todo" Padding="10,4" Margin="0,0,6,6" Click="Reset_Click"/>
+                </WrapPanel>
+                <TextBlock TextWrapping="Wrap" Foreground="#9AA0A6" FontSize="11" Margin="0,4,0,0"
+                           Text="Color: mismos rangos y fórmula que «Corrección de color» de OBS. Nitidez y desenfoque de movimiento son aproximaciones de S_Sharpen y RSMB (no son esos plugins). Doble clic en una barra la devuelve a 0."/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Posición del fotograma de prueba -->
+        <DockPanel Grid.Row="2" Margin="0,10,16,0">
+            <TextBlock x:Name="TimeText" Text="00:00" Width="90" DockPanel.Dock="Right" TextAlignment="Right" VerticalAlignment="Center" Foreground="#9AA0A6"/>
+            <Slider x:Name="TimeSlider" Minimum="0" Maximum="1" IsEnabled="False" ValueChanged="Time_Changed" VerticalAlignment="Center"/>
+        </DockPanel>
+
+        <!-- Exportar -->
+        <DockPanel Grid.Row="3" Grid.ColumnSpan="2" Margin="0,14,0,0">
+            <Button x:Name="ExportBtn" Content="Exportar video" Width="130" Height="32" DockPanel.Dock="Right" IsEnabled="False" Click="Export_Click"/>
+            <Button x:Name="CancelBtn" Content="Cancelar" Width="80" Height="32" Margin="0,0,8,0" DockPanel.Dock="Right" Visibility="Collapsed" Click="Cancel_Click"/>
+            <ComboBox x:Name="QualityBox" Width="150" Height="28" DockPanel.Dock="Left" VerticalContentAlignment="Center"/>
+            <StackPanel Margin="14,0,14,0" VerticalAlignment="Center">
+                <ProgressBar x:Name="Progress" Height="8" Minimum="0" Maximum="100"/>
+                <TextBlock x:Name="Status" Text="Abre un video para empezar" Foreground="#9AA0A6" FontSize="12" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>

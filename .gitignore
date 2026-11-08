@@ -1,0 +1,7 @@
+bin/
+obj/
+VAL Rec/
+tools/
+test.mp4
+*.pdb
+patch_hq.py
