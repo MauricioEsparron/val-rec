@@ -38,6 +38,17 @@ public partial class MainWindow : Window
         FpsBox.SelectedIndex = _s.Fps >= 60 ? 1 : 0;
         QualityBox.ItemsSource = Qualities.Select(q => q.Item1).ToList();
         QualityBox.SelectedIndex = Math.Max(0, Array.FindIndex(Qualities, q => q.Item2 == _s.Mbps));
+        CaptureBox.ItemsSource = new[] { "Windows Graphics Capture (recomendado)", "DXGI (método anterior)" };
+        CaptureBox.SelectedIndex = _s.Capture == "dxgi" ? 1 : 0;
+        var devs = new List<string> { "Predeterminado de Windows" };
+        try
+        {
+            using var en = new NAudio.CoreAudioApi.MMDeviceEnumerator();
+            devs.AddRange(en.EnumerateAudioEndPoints(NAudio.CoreAudioApi.DataFlow.Render, NAudio.CoreAudioApi.DeviceState.Active).Select(d => d.FriendlyName));
+        }
+        catch { }
+        AudioDeviceBox.ItemsSource = devs;
+        AudioDeviceBox.SelectedIndex = Math.Max(0, devs.IndexOf(_s.AudioDevice));
         AudioCheck.IsChecked = _s.Audio;
         FolderBox.Text = _s.Folder;
 
@@ -132,7 +143,7 @@ public partial class MainWindow : Window
 
     void SetUi(bool rec)
     {
-        FpsBox.IsEnabled = QualityBox.IsEnabled = AudioCheck.IsEnabled = !rec;
+        FpsBox.IsEnabled = QualityBox.IsEnabled = AudioCheck.IsEnabled = CaptureBox.IsEnabled = AudioDeviceBox.IsEnabled = !rec;
         if (!rec) TimerText.Text = "00:00:00";
         _tray.Text = rec ? "VAL Rec · grabando" : "VAL Rec";
     }
@@ -174,6 +185,8 @@ public partial class MainWindow : Window
     {
         _s.Fps = FpsBox.SelectedIndex == 1 ? 60 : 30;
         _s.Mbps = Qualities[Math.Max(0, QualityBox.SelectedIndex)].Item2;
+        _s.Capture = CaptureBox.SelectedIndex == 1 ? "dxgi" : "wgc";
+        _s.AudioDevice = AudioDeviceBox.SelectedIndex > 0 ? (string)AudioDeviceBox.SelectedItem : "";
         _s.Audio = AudioCheck.IsChecked == true;
         _s.Save();
     }

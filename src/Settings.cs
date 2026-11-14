@@ -9,6 +9,8 @@ public class Settings
     public int Mbps { get; set; } = 12;
     public bool Audio { get; set; } = true;
     public ColorAdjust Color { get; set; } = ColorAdjust.Obs();
+    public string AudioDevice { get; set; } = "";   // vacío = predeterminado de Windows
+    public string Capture { get; set; } = "wgc";   // "wgc" (Windows Graphics Capture) o "dxgi"
     public bool BlurQuality { get; set; }
     public int ExportMbps { get; set; } = 20;
     public string Folder { get; set; } =

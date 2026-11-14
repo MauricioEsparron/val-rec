@@ -1,7 +1,7 @@
 <Window x:Class="ValRec.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Icon="gato.ico" Title="VAL Rec" Width="380" Height="460" ResizeMode="CanMinimize"
+        Icon="gato.ico" Title="VAL Rec" Width="380" Height="580" ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen" Background="#14161A" Foreground="#E8EAED"
         FontFamily="Segoe UI" FontSize="13">
     <Window.Resources>
@@ -48,6 +48,10 @@
         <ComboBox x:Name="FpsBox"/>
         <TextBlock Text="Calidad" Style="{StaticResource Label}"/>
         <ComboBox x:Name="QualityBox"/>
+        <TextBlock Text="Método de captura" Style="{StaticResource Label}"/>
+        <ComboBox x:Name="CaptureBox"/>
+        <TextBlock Text="Dispositivo de audio a grabar" Style="{StaticResource Label}"/>
+        <ComboBox x:Name="AudioDeviceBox"/>
         <CheckBox x:Name="AudioCheck" Content="Grabar audio del sistema" Foreground="#E8EAED" Margin="0,0,0,8"/>
         <Button Content="Colores y filtros… (editar un video)" Height="30" Margin="0,0,0,12" Click="Editor_Click"/>
 
