@@ -68,6 +68,11 @@
             <Button x:Name="ExportBtn" Content="Exportar video" Width="130" Height="32" DockPanel.Dock="Right" IsEnabled="False" Click="Export_Click"/>
             <Button x:Name="CancelBtn" Content="Cancelar" Width="80" Height="32" Margin="0,0,8,0" DockPanel.Dock="Right" Visibility="Collapsed" Click="Cancel_Click"/>
             <ComboBox x:Name="QualityBox" Width="150" Height="28" DockPanel.Dock="Left" VerticalContentAlignment="Center"/>
+            <StackPanel DockPanel.Dock="Left" Margin="14,0,0,0" VerticalAlignment="Center">
+                <CheckBox x:Name="StretchBox" Content="Estirar a pantalla completa (16:9)" Foreground="#E8EAED"
+                          ToolTip="Para grabaciones 4:3 (resolución estirada): exporta a 1920x1080 ensanchando la imagen, sin barras negras."/>
+                <TextBlock x:Name="StretchHint" Foreground="#9AA0A6" FontSize="11"/>
+            </StackPanel>
             <StackPanel Margin="14,0,14,0" VerticalAlignment="Center">
                 <ProgressBar x:Name="Progress" Height="8" Minimum="0" Maximum="100"/>
                 <TextBlock x:Name="Status" Text="Abre un video para empezar" Foreground="#9AA0A6" FontSize="12" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>

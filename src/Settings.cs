@@ -12,6 +12,7 @@ public class Settings
     public string AudioDevice { get; set; } = "";   // vacío = predeterminado de Windows
     public string Capture { get; set; } = "wgc";   // "wgc" (Windows Graphics Capture) o "dxgi"
     public bool BlurQuality { get; set; }
+    public bool StretchExport { get; set; }   // exportar 4:3 estirado a 16:9 (1920x1080), sin barras
     public int ExportMbps { get; set; } = 20;
     public string Folder { get; set; } =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos), "VAL Rec");

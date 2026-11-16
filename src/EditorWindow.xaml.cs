@@ -52,10 +52,17 @@ public partial class EditorWindow : Window
 
         BlurMode.ItemsSource = new[] { "Desenfoque: rápido (mezcla de fotogramas)", "Desenfoque: calidad (interpolación, MUY lento)" };
         BlurMode.SelectedIndex = s.BlurQuality ? 1 : 0;
+        StretchBox.IsChecked = s.StretchExport;
+        StretchBox.Click += (_, _) => { _origDirty = true; _debounce.Stop(); _debounce.Start(); };
         BuildSliders();
         _debounce.Tick += async (_, _) => { _debounce.Stop(); await RefreshFxAsync(); };
-        Closing += (_, _) => { lock (_chunks) foreach (var c in _chunks) { try { c.Kill(true); } catch { } } _s.Color = _fx.Clone(); _s.ExportMbps = Mbps(); _s.BlurQuality = BlurMode.SelectedIndex == 1; _s.Save(); try { _export?.Kill(true); } catch { } };
+        Closing += (_, _) => { lock (_chunks) foreach (var c in _chunks) { try { c.Kill(true); } catch { } } _s.Color = _fx.Clone(); _s.ExportMbps = Mbps(); _s.BlurQuality = BlurMode.SelectedIndex == 1; _s.StretchExport = Stretch; _s.Save(); try { _export?.Kill(true); } catch { } };
     }
+
+    // Estirado a pantalla completa: ignora la relación de aspecto a propósito (sin pad ni force_original_aspect_ratio).
+    const string StretchFilter = "scale=1920:1080:flags=bicubic,setsar=1";
+    bool Stretch => StretchBox.IsChecked == true;
+    int _srcW, _srcH;
 
     int Mbps() => QualityBox.SelectedIndex switch { 0 => 10, 1 => 20, 2 => 35, _ => 60 };
 
@@ -117,6 +124,11 @@ public partial class EditorWindow : Window
         if (!m.Success) { Status.Text = "No se pudo leer ese archivo como video"; _video = null; return; }
         _duration = int.Parse(m.Groups[1].Value) * 3600 + int.Parse(m.Groups[2].Value) * 60 +
                     double.Parse(m.Groups[3].Value, CultureInfo.InvariantCulture);
+        var sz = Regex.Match(info, @"Video:.*?,\s*(\d{3,5})x(\d{3,5})");
+        _srcW = sz.Success ? int.Parse(sz.Groups[1].Value) : 0; _srcH = sz.Success ? int.Parse(sz.Groups[2].Value) : 0;
+        StretchHint.Text = _srcH > 0 && (double)_srcW / _srcH < 1.5
+            ? $"Este video es {_srcW}x{_srcH} (casi 4:3): puedes estirarlo a 1920x1080."
+            : "";
         TimeSlider.IsEnabled = true; TimeSlider.Maximum = Math.Max(0.1, _duration - 0.2);
         ExportBtn.IsEnabled = true;
         TimeSlider.Value = Math.Min(1, TimeSlider.Maximum);
@@ -142,15 +154,16 @@ public partial class EditorWindow : Window
         try
         {
             if (my != _ticket) return;   // llegó un cambio más nuevo
-            string video = _video!; double t = TimeSlider.Value; var tmp = _fx.Clone(); string fx = tmp.ToFilter(); bool needOrig = _origDirty;
+            string video = _video!; double t = TimeSlider.Value; var tmp = _fx.Clone(); string fx = tmp.ToFilter(); bool needOrig = _origDirty; bool stretch = Stretch;
             string o = Path.Combine(_tmp, "orig.png"), f = Path.Combine(_tmp, "fx.png");
             await Task.Run(() =>
             {
                 string[] baseArgs(string vf, string outp) => new[] { "-hide_banner", "-loglevel", "error", "-y", "-ss",
                     t.ToString("0.###", CultureInfo.InvariantCulture), "-i", video, "-frames:v", "1", "-vf", vf, outp };
                 if (needOrig) RunFfmpeg(baseArgs("scale=720:-2,format=rgb24", o));
+                string sc = stretch ? "scale=720:405,setsar=1" : "scale=720:-2";
                 string tf = tmp.TemporalFilter(_s.Fps);
-                string chain = (tf == "" ? "" : tf + ",") + "scale=720:-2,format=bgra," + (fx == "" ? "" : fx + ",") + "format=rgb24";
+                string chain = (tf == "" ? "" : tf + ",") + sc + ",format=bgra," + (fx == "" ? "" : fx + ",") + "format=rgb24";
                 if (tf == "") RunFfmpeg(baseArgs(chain, f));
                 else   // el desenfoque necesita fotogramas previos: se procesan varios y se queda el último
                     RunFfmpeg(new[] { "-hide_banner", "-loglevel", "error", "-y", "-ss", Math.Max(0, t - 0.1).ToString("0.###", CultureInfo.InvariantCulture),
@@ -196,7 +209,7 @@ public partial class EditorWindow : Window
         string fx = _fx.ToFilter();
         bool hq = _fx.MotionBlur > 1e-4 && BlurMode.SelectedIndex == 1;
         string tf = _fx.TemporalFilter(_s.Fps, hq);
-        string vf = (tf == "" ? "" : tf + ",") + (fx == ""
+        string vf = (tf == "" ? "" : tf + ",") + (Stretch ? StretchFilter + "," : "") + (fx == ""
             ? "format=nv12"
             : "scale=in_range=auto,format=bgra," + fx + ",scale=out_color_matrix=bt709:out_range=tv,format=nv12");
         int mb = Mbps();
